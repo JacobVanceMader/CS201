@@ -1,8 +1,65 @@
-// Jacob Mader //
+// Jacob Mader
 #include <stdio.h>
 #include <string.h>
+#include <ncurses.h>
+//int argc, char const *argv[]
 
-int main(int argc, char const *argv[]) {
+int main() {
+  initscr(); // ncurses constructor function
+  cbreak();
+  start_color();
+  init_pair(1,COLOR_YELLOW,COLOR_BLACK); // colors the ncurses terminal
+  attron(COLOR_PAIR(1));
+  WINDOW *tui = newwin(10,10,0,0);
+  init_pair(1,COLOR_YELLOW,COLOR_BLACK); // colors the ncurses terminal
+  attron(COLOR_PAIR(1));
+  noecho();
+  getch();
+  int c = '*';
+  wborder(tui,c,c,c,c,c,c,c,c);
+  wrefresh(tui);
+  wprintw(tui,"Hello World \n");
+  wrefresh(tui);
+  getch();
+
+  clear();
+  wprintw(tui,"Refreshed");
+  refresh();
+  getch();
+
+  clear();
+  mvprintw(12,30,"Moved");
+  refresh();
+  getch();
+
+  clear();
+  noecho();
+  attron(A_BLINK);
+  for(int x = 100; x >= 0; x--){
+    mvprintw(6,20,"%d   ", x);
+    getch();
+  }
+  mvprintw(6,20,"Refreshed");
+  attroff(A_BLINK);
+  refresh();
+  getch();
+
+  getch();
+  attroff(COLOR_PAIR(1));
+
+
+  endwin(); // ncurses destructor function
+  return 0;
+
+
+
+
+
+
+
+
+
+  /*
   char myName[30]; // Progranm Name
   char yourName[30]; // User Name
   char fileName[30]; // File Name
@@ -93,4 +150,5 @@ int main(int argc, char const *argv[]) {
   }
 
   return 0;
+  */
 }
