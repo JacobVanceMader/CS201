@@ -2,50 +2,380 @@
 #include <stdio.h>
 #include <string.h>
 #include <ncurses.h>
+#include <time.h>
 //int argc, char const *argv[]
+FILE *user; // File Pointer
+char who[100];
+int gx;
+int gy;
 
-int main() {
+void wBlankScreen(WINDOW * win, int c, int y, int x){
+  wattrset(win, COLOR_PAIR(c));
+  for(int i = 0; i <= y; i++){
+    for(int j = 0; j <= x; j++){
+      wprintw(win," ");
+    }
+  }
+  mvwprintw(win,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(win,y-2,x/2 - 11,"Press Enter to Select");
+  wrefresh(win);
+}
+
+void wBackground(WINDOW *win, int c, int y, int x ){
+  wBlankScreen(win, c, y, x);
+  int b = '*';
+  wborder(win,b,b,b,b,b,b,b,b);
+}
+int openStartMenu(){
+  int x,y;
+  WINDOW *tui = newwin(0,0,0,0);
+  getmaxyx(tui,y,x);
+  start_color();
+  init_pair(1,COLOR_BLACK,COLOR_WHITE);
+  wBackground(tui,1,y,x);
+  wrefresh(tui);
+  wclear(tui);
+  wBackground(tui,1,y,x);
+  char selections[2][20];
+  strcpy(selections[0], "Enter");
+  strcpy(selections[1], "Exit");
+  mvwprintw(tui,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(tui,y-2,x/2 - 11,"Press Enter to Select");
+  mvwprintw(tui,1,1,"Press Control C to Close This Application");
+  wrefresh(tui);
+  keypad(tui, true);
+  int option = 0;
+  int choice;
+  while(true){
+    for(int q = 0; q < 2; q++){
+      if(q == option){
+        wattron(tui, A_BLINK);
+      }
+      mvwprintw(tui,y/2 + q + 1,x/2 - 11, selections[q]);
+      wattroff(tui, A_BLINK);
+    }
+    choice = wgetch(tui);
+    switch(choice){
+      case KEY_UP:
+        option--;
+        if(option == -1){
+          option = 0;
+        }
+        break;
+      case KEY_DOWN:
+        option++;
+        if(option == 2){
+          option = 1;
+        }
+        break;
+      default:
+        break;
+    }
+    if(choice == 10){
+      break;
+    }
+  }
+  return option;
+
+}
+
+void openUI(){
+  int x,y;
+  WINDOW *tui = newwin(0,0,0,0);
+  getmaxyx(tui,y,x);
+  gy = y;
+  gx = x;
+  start_color();
+  init_pair(1,COLOR_BLACK,COLOR_WHITE);
+  wBackground(tui,1,y,x);
+  wrefresh(tui);
+
+  wBackground(tui,1,y,x);
+  mvwprintw(tui,y/2,x/2 - 11,"Hello World!");
+  mvwprintw(tui,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(tui,1,1,"Press Control C to Close This Application");
+  mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
+  wrefresh(tui);
+  getch();
+
+  wclear(tui);
+  wBackground(tui,1,y,x);
+  mvwprintw(tui,y/2,x/2 - 11,"Welcome to the Mader Food Database");
+  mvwprintw(tui,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(tui,1,1,"Press Control C to Close This Application");
+  mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
+  wrefresh(tui);
+  getch();
+
+  wclear(tui);
+  wBackground(tui,1,y,x);
+  mvwprintw(tui,y/2,x/2 - 11,"Here you can search for food");
+  mvwprintw(tui,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(tui,1,1,"Press Control C to Close This Application");
+  mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
+  wrefresh(tui);
+  getch();
+
+  wclear(tui);
+  wBackground(tui,1,y,x);
+  mvwprintw(tui,y/2,x/2 - 11,"and find information");
+  mvwprintw(tui,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(tui,1,1,"Press Control C to Close This Application");
+  mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
+  wrefresh(tui);
+  getch();
+
+  wclear(tui);
+  wBackground(tui,1,y,x);
+  mvwprintw(tui,y/2,x/2 - 11,"such as calories, carbs, fats, and proteins");
+  mvwprintw(tui,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(tui,1,1,"Press Control C to Close This Application");
+  mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
+  wrefresh(tui);
+  getch();
+
+  wclear(tui);
+  wBackground(tui,1,y,x);
+  mvwprintw(tui,y/2,x/2 - 11,"Search by name");
+  mvwprintw(tui,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(tui,1,1,"Press Control C to Close This Application");
+  mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
+  wrefresh(tui);
+  getch();
+
+  wclear(tui);
+  wBackground(tui,1,y,x);
+  mvwprintw(tui,y/2,x/2 - 11,"and build your user diary");
+  mvwprintw(tui,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(tui,1,1,"Press Control C to Close This Application");
+  mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
+  wrefresh(tui);
+  getch();
+
+  mvwprintw(tui,y-2,x/2 - 11,"Press Enter to Select");
+  wrefresh(tui);
+  delwin(tui);
+}
+
+void startProgram(){
+  int x, y;
   initscr(); // ncurses constructor function
   cbreak();
+  noecho();
+  refresh();
+  openUI();
+}
+
+int openUserMenu(){
+  int y, x;
+  WINDOW *info = newwin(0,0,0,0);
+  getmaxyx(info,y,x);
+  delwin(info);
+  WINDOW *menu = newwin(y/2,x/2,y/2 - y/4,x/2 - x/4);
+  noecho();
+  getmaxyx(menu,y,x);
   start_color();
-  init_pair(1,COLOR_YELLOW,COLOR_BLACK); // colors the ncurses terminal
-  attron(COLOR_PAIR(1));
-  WINDOW *tui = newwin(10,10,0,0);
-  init_pair(1,COLOR_YELLOW,COLOR_BLACK); // colors the ncurses terminal
-  attron(COLOR_PAIR(1));
-  noecho();
-  getch();
-  int c = '*';
-  wborder(tui,c,c,c,c,c,c,c,c);
-  wrefresh(tui);
-  wprintw(tui,"Hello World \n");
-  wrefresh(tui);
-  getch();
-
-  clear();
-  wprintw(tui,"Refreshed");
-  refresh();
-  getch();
-
-  clear();
-  mvprintw(12,30,"Moved");
-  refresh();
-  getch();
-
-  clear();
-  noecho();
-  attron(A_BLINK);
-  for(int x = 100; x >= 0; x--){
-    mvprintw(6,20,"%d   ", x);
-    getch();
+  init_pair(2,COLOR_BLUE,COLOR_WHITE); // colors the ncurses terminal
+  wattron(menu, COLOR_PAIR(2));
+  keypad(menu, true);
+  char selections[2][14];
+  strcpy(selections[0], "New User");
+  strcpy(selections[1], "Existing User");
+  int option = 0;
+  wBackground(menu,2,y,x);
+  mvwprintw(menu,1,x/2 - 11,"Mader Food Database User Menu");
+  mvwprintw(menu,y-3,x/2 - 11,"Press Arrow keys to Navigate");
+  mvwprintw(menu,y-2,x/2 - 11,"Press Enter to Select");
+  wmove(menu,y/2,x/2 - 11);
+  int choice;
+  while(true){
+    for(int q = 0; q < 2; q++){
+      if(q == option){
+        wattron(menu, A_BLINK);
+      }
+      mvwprintw(menu,y/2 + q + 1,x/2 - 11, selections[q]);
+      wattroff(menu, A_BLINK);
+    }
+    choice = wgetch(menu);
+    switch(choice){
+      case KEY_UP:
+        option--;
+        if(option == -1){
+          option = 0;
+        }
+        break;
+      case KEY_DOWN:
+        option++;
+        if(option == 2){
+          option = 1;
+        }
+        break;
+      default:
+        break;
+    }
+    if(choice == 10){
+      break;
+    }
   }
-  mvprintw(6,20,"Refreshed");
-  attroff(A_BLINK);
-  refresh();
+  wrefresh(menu);
+  wattroff(menu, COLOR_PAIR(1));
+  delwin(menu);
+  return option;
+}
+
+void openMenu(int selection){
+  int y, x;
+  char yourName[100];
+  WINDOW *info = newwin(0,0,0,0);
+  getmaxyx(info,y,x);
+  delwin(info);
+  WINDOW *menu = newwin(y/2,x/2,y/2 - y/4,x/2 - x/4);
+  noecho();
+  getmaxyx(menu,y,x);
+  start_color();
+  init_pair(2,COLOR_BLUE,COLOR_WHITE); // colors the ncurses terminal
+  wattron(menu, COLOR_PAIR(2));
+  keypad(menu, true);
+  wBackground(menu,2,y,x);
+  if(selection ==  0){
+    echo();
+    wrefresh(menu);
+    mvwprintw(menu,1,x/2 - 11,"Mader Food Database User Menu");
+    mvwprintw(menu,y-2,x/2 - 11,"Press Enter to Continue");
+    mvwprintw(menu,y/2 + 1,x/2 - 11,"Enter Your Name:");
+    wattron(menu, A_BLINK | COLOR_PAIR(2));
+    wscanw(menu,"%s", yourName);
+    wattroff(menu, A_BLINK);
+    mvwprintw(menu,y/2 + 1,x/2 - 11,"User %s has been Created!", yourName);
+    user = fopen("USERS.txt", "a");
+    fprintf(user, "%s ", yourName);
+    fclose(user);
+    wrefresh(menu);
+    strcpy(who, yourName);
+  }
+  if(selection == 1){
+    mvwprintw(menu,1,x/2 - 11,"Mader Food Database User Menu");
+    mvwprintw(menu,y-2,x/2 - 11,"Press Enter to Continue");
+    wmove(menu,y/2,x/2 - 11);
+    wrefresh(menu);
+    int current = 0;
+    int choice;
+    char dummy[100];
+    char str[100];
+    user = fopen("USERS.txt", "r");
+    if (!user) {
+      wprintw(menu, "No Users Exist!");
+      wrefresh(menu);
+      strcpy(who,"ERROR");
+      getch();
+      return;
+    }
+    fclose(user);
+    user = fopen("USERS.txt", "r");
+    while(!feof(user)){
+      fscanf(user, "%s ", dummy);
+      current++;
+    }
+    fclose(user);
+    char users[current][100];
+    user = fopen("USERS.txt", "r");
+    for(int i = 0; i < current; i++){
+      fscanf(user,"%s", str);
+      strcpy(users[i], str);
+    }
+    fclose(user);
+    wrefresh(menu);
+    int option = 0;
+    while(true){
+      for(int q = 0; q < current; q++){
+        if(q == option){
+          wattron(menu, A_BLINK);
+        }
+        mvwprintw(menu,y/2 + q,x/2 - 11, "%s", users[q]);
+        wattroff(menu, A_BLINK);
+      }
+      choice = wgetch(menu);
+      switch(choice){
+        case KEY_UP:
+          option--;
+          if(option == -1){
+            option = 0;
+          }
+          break;
+        case KEY_DOWN:
+          option++;
+          if(option == current){
+            option = 3;
+          }
+          break;
+        default:
+          break;
+      }
+      if(choice == 10){
+        strcpy(who, users[option]);
+        break;
+      }
+    }
+  }
+  wrefresh(menu);
+  wattroff(menu, COLOR_PAIR(2));
+  delwin(menu);
+}
+
+void userWelcome(char* user){
+  int y, x;
+  char yourName[100];
+  WINDOW *info = newwin(0,0,0,0);
+  getmaxyx(info,y,x);
+  delwin(info);
+  WINDOW *menu = newwin(y/2,x/2,y/2 - y/4,x/2 - x/4);
+  noecho();
+  getmaxyx(menu,y,x);
+  start_color();
+  init_pair(2,COLOR_BLUE,COLOR_WHITE); // colors the ncurses terminal
+  wattron(menu, COLOR_PAIR(2));
+  keypad(menu, true);
+  wBackground(menu,2,y,x);
+  mvwprintw(menu,1,x/2 - 11,"Mader Food Database User Menu");
+  mvwprintw(menu,y-2,x/2 - 11,"Press Enter to Continue");
+  if(user == "ERROR"){
+    mvwprintw(menu,y/2 + 1,x/2 - 11,"%s", user);
+  }
+  else{
+    mvwprintw(menu,y/2 + 1,x/2 - 11,"Welcome %s", user);
+  }
+  wrefresh(menu);
+  wclear(menu);
+  delwin(menu);
   getch();
+  wrefresh(menu);
+}
+
+int main() {
+  start_color();
+  init_pair(1,COLOR_BLACK,COLOR_WHITE);
+  startProgram();
+  int go = openStartMenu();
+  if(go == 1){
+    endwin();
+    return 0;
+  }
+  int selection = openUserMenu();
+  openMenu(selection);
+  while(strcmp(who,"ERROR") == 0){
+    refresh();
+    selection = openUserMenu();
+    openMenu(selection);
+  }
+  userWelcome(who);
+  wBackground(stdscr, 1, gy, gx);
+  mvwprintw(stdscr,1,1,"Press Control C to Close This Application");
+  mvwprintw(stdscr,2,1,"User: %s", who);
+  refresh();
 
   getch();
-  attroff(COLOR_PAIR(1));
+
+
 
 
   endwin(); // ncurses destructor function
