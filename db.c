@@ -2,12 +2,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <ncurses.h>
-#include <time.h>
-//int argc, char const *argv[]
+
 FILE *user; // File Pointer
-char who[100];
-int gx;
-int gy;
+char who[100]; // global user variable
+int gx; // global variable for max x of screen
+int gy; // global variable for max y of screen
 
 void wBlankScreen(WINDOW * win, int c, int y, int x){
   wattrset(win, COLOR_PAIR(c));
@@ -167,10 +166,8 @@ void startProgram(){
 }
 
 int openUserMenu(){
-  int y, x;
-  WINDOW *info = newwin(0,0,0,0);
-  getmaxyx(info,y,x);
-  delwin(info);
+  int y = gy;
+  int x = gx;
   WINDOW *menu = newwin(y/2,x/2,y/2 - y/4,x/2 - x/4);
   noecho();
   getmaxyx(menu,y,x);
@@ -255,7 +252,8 @@ void openMenu(int selection){
   }
   if(selection == 1){
     mvwprintw(menu,1,x/2 - 11,"Mader Food Database User Menu");
-    mvwprintw(menu,y-2,x/2 - 11,"Press Enter to Continue");
+    mvwprintw(menu,y-3,x/2 - 11,"Press Arrow keys to Navigate");
+    mvwprintw(menu,y-2,x/2 - 11,"Press Enter to Select");
     wmove(menu,y/2,x/2 - 11);
     wrefresh(menu);
     int current = 0;
@@ -305,7 +303,7 @@ void openMenu(int selection){
         case KEY_DOWN:
           option++;
           if(option == current){
-            option = 3;
+            option = current - 1;
           }
           break;
         default:
@@ -323,11 +321,9 @@ void openMenu(int selection){
 }
 
 void userWelcome(char* user){
-  int y, x;
+  int y = gy;
+  int x = gx;
   char yourName[100];
-  WINDOW *info = newwin(0,0,0,0);
-  getmaxyx(info,y,x);
-  delwin(info);
   WINDOW *menu = newwin(y/2,x/2,y/2 - y/4,x/2 - x/4);
   noecho();
   getmaxyx(menu,y,x);
@@ -337,21 +333,126 @@ void userWelcome(char* user){
   keypad(menu, true);
   wBackground(menu,2,y,x);
   mvwprintw(menu,1,x/2 - 11,"Mader Food Database User Menu");
-  mvwprintw(menu,y-2,x/2 - 11,"Press Enter to Continue");
-  if(user == "ERROR"){
-    mvwprintw(menu,y/2 + 1,x/2 - 11,"%s", user);
-  }
-  else{
-    mvwprintw(menu,y/2 + 1,x/2 - 11,"Welcome %s", user);
-  }
+  mvwprintw(menu,y-2,x/2 - 11,"Press Any Key to Continue");
+  mvwprintw(menu,y/2 + 1,x/2 - 11,"Welcome %s", user);
   wrefresh(menu);
+  getch();
   wclear(menu);
   delwin(menu);
-  getch();
   wrefresh(menu);
 }
 
-int main() {
+int mainMenu(){
+  int x,y;
+  WINDOW *tui = newwin(0,0,0,0);
+  getmaxyx(tui,y,x);
+  start_color();
+  init_pair(1,COLOR_BLACK,COLOR_WHITE);
+  wBackground(tui,1,y,x);
+  wrefresh(tui);
+  wclear(tui);
+  wBackground(tui,1,y,x);
+  char selections[4][20];
+  strcpy(selections[0], "Create User Diary");
+  strcpy(selections[1], "Retreive User Diary");
+  strcpy(selections[2], "Update User Diary");
+  strcpy(selections[3], "Delete User Diary");
+  mvwprintw(tui,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(tui,y-2,x/2 - 11,"Press Enter to Select");
+  mvwprintw(tui,y-3,x/2 - 11,"Press Arrow keys to Navigate");
+  mvwprintw(tui,1,1,"Press Control C to Close This Application");
+  mvwprintw(tui,2,1,"User: %s", who);
+  wrefresh(tui);
+  keypad(tui, true);
+  int option = 0;
+  int choice;
+  while(true){
+    for(int q = 0; q < 4; q++){
+      if(q == option){
+        wattron(tui, A_BLINK);
+      }
+      mvwprintw(tui,y/2 + q + 1,x/2 - 11, selections[q]);
+      wattroff(tui, A_BLINK);
+    }
+    choice = wgetch(tui);
+    switch(choice){
+      case KEY_UP:
+        option--;
+        if(option == -1){
+          option = 0;
+        }
+        break;
+      case KEY_DOWN:
+        option++;
+        if(option == 4){
+          option = 3;
+        }
+        break;
+      default:
+        break;
+    }
+    if(choice == 10){
+      break;
+    }
+  }
+  wrefresh(tui);
+  delwin(tui);
+  return option;
+}
+void create(){
+  char diary[100];
+  strcpy(diary,who);
+  user = fopen(strcat(diary,".txt"), "a");
+  fprintf(user, "%s's User Diary\n", who);
+  fclose(user);
+}
+
+void retreive(){
+  user = fopen(strcat(who,".txt"), "a");
+  fprintf(user, "Retrieved!\n");
+  fclose(user);
+
+}
+
+void update(){
+  user = fopen(strcat(who,".txt"), "a");
+  fprintf(user, "Updated!\n");
+  fclose(user);
+
+}
+void delete(){
+  remove(strcat(who,".txt"));
+}
+void action(int act){
+  int y = gy;
+  int x = gx;
+  WINDOW *menu = newwin(y/2,x/2,y/2 - y/4,x/2 - x/4);
+  getmaxyx(menu,y,x);
+  start_color();
+  init_pair(1,COLOR_BLACK,COLOR_WHITE);
+  wBackground(menu,1,y,x);
+  switch(act){
+    case 0:
+      mvwprintw(menu,2,x/2 - 11,"Create User Diary");
+      create();
+      break;
+    case 1:
+      mvwprintw(menu,2,x/2 - 11,"Retreive User Diary");
+      retreive();
+      break;
+    case 2:
+      mvwprintw(menu,2,x/2 - 11,"Update User Diary");
+      update();
+      break;
+    case 3:
+      mvwprintw(menu,2,x/2 - 11,"Delete User Diary");
+      delete();
+      break;
+  }
+  wrefresh(menu);
+}
+
+int main(int argc, char const *argv[]) {
   start_color();
   init_pair(1,COLOR_BLACK,COLOR_WHITE);
   startProgram();
@@ -372,6 +473,10 @@ int main() {
   mvwprintw(stdscr,1,1,"Press Control C to Close This Application");
   mvwprintw(stdscr,2,1,"User: %s", who);
   refresh();
+  go = mainMenu();
+  action(go);
+
+
 
   getch();
 
