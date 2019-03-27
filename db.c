@@ -1,12 +1,22 @@
 // Jacob Mader
 #include <stdio.h>
 #include <string.h>
-#include <ncurses.h>
+#include <curses.h>
 
 FILE *user; // File Pointer
 char who[100]; // global user variable
 int gx; // global variable for max x of screen
 int gy; // global variable for max y of screen
+int boardheight;
+int boardwidth;
+int boardx;
+int boardy;
+int playeronecolor;
+int playertwocolor;
+int playerthreecolor;
+int playerfourcolor;
+int computercolor;
+int currentplayer;
 
 void wBlankScreen(WINDOW * win, int c, int y, int x){
   wattrset(win, COLOR_PAIR(c));
@@ -15,7 +25,7 @@ void wBlankScreen(WINDOW * win, int c, int y, int x){
       wprintw(win," ");
     }
   }
-  mvwprintw(win,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(win,1,x/2 - 11,"Mader Connect Four");
   mvwprintw(win,y-2,x/2 - 11,"Press Enter to Select");
   wrefresh(win);
 }
@@ -38,7 +48,7 @@ int openStartMenu(){
   char selections[2][20];
   strcpy(selections[0], "Enter");
   strcpy(selections[1], "Exit");
-  mvwprintw(tui,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(tui,1,x/2 - 11,"Mader Connect Four");
   mvwprintw(tui,y-2,x/2 - 11,"Press Enter to Select");
   mvwprintw(tui,1,1,"Press Control C to Close This Application");
   wrefresh(tui);
@@ -91,7 +101,7 @@ void openUI(){
 
   wBackground(tui,1,y,x);
   mvwprintw(tui,y/2,x/2 - 11,"Hello World!");
-  mvwprintw(tui,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(tui,1,x/2 - 11,"Mader Connect Four");
   mvwprintw(tui,1,1,"Press Control C to Close This Application");
   mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
   wrefresh(tui);
@@ -99,8 +109,8 @@ void openUI(){
 
   wclear(tui);
   wBackground(tui,1,y,x);
-  mvwprintw(tui,y/2,x/2 - 11,"Welcome to the Mader Food Database");
-  mvwprintw(tui,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(tui,y/2,x/2 - 11,"Welcome to Mader Connect Four");
+  mvwprintw(tui,1,x/2 - 11,"Mader Connect Four");
   mvwprintw(tui,1,1,"Press Control C to Close This Application");
   mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
   wrefresh(tui);
@@ -108,8 +118,8 @@ void openUI(){
 
   wclear(tui);
   wBackground(tui,1,y,x);
-  mvwprintw(tui,y/2,x/2 - 11,"Here you can search for food");
-  mvwprintw(tui,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(tui,y/2,x/2 - 11,"Here you can play Connect Four");
+  mvwprintw(tui,1,x/2 - 11,"Mader Connect Four");
   mvwprintw(tui,1,1,"Press Control C to Close This Application");
   mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
   wrefresh(tui);
@@ -117,8 +127,8 @@ void openUI(){
 
   wclear(tui);
   wBackground(tui,1,y,x);
-  mvwprintw(tui,y/2,x/2 - 11,"and find information");
-  mvwprintw(tui,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(tui,y/2,x/2 - 11,"You can customize the rules");
+  mvwprintw(tui,1,x/2 - 11,"Mader Connect Four");
   mvwprintw(tui,1,1,"Press Control C to Close This Application");
   mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
   wrefresh(tui);
@@ -126,8 +136,8 @@ void openUI(){
 
   wclear(tui);
   wBackground(tui,1,y,x);
-  mvwprintw(tui,y/2,x/2 - 11,"such as calories, carbs, fats, and proteins");
-  mvwprintw(tui,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(tui,y/2,x/2 - 11,"Or play the traditional game");
+  mvwprintw(tui,1,x/2 - 11,"Mader Connect Four");
   mvwprintw(tui,1,1,"Press Control C to Close This Application");
   mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
   wrefresh(tui);
@@ -135,8 +145,8 @@ void openUI(){
 
   wclear(tui);
   wBackground(tui,1,y,x);
-  mvwprintw(tui,y/2,x/2 - 11,"Search by name");
-  mvwprintw(tui,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(tui,y/2,x/2 - 11,"You can play against friends");
+  mvwprintw(tui,1,x/2 - 11,"Mader Connect Four");
   mvwprintw(tui,1,1,"Press Control C to Close This Application");
   mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
   wrefresh(tui);
@@ -144,8 +154,8 @@ void openUI(){
 
   wclear(tui);
   wBackground(tui,1,y,x);
-  mvwprintw(tui,y/2,x/2 - 11,"and build your user diary");
-  mvwprintw(tui,1,x/2 - 11,"Mader Food Database");
+  mvwprintw(tui,y/2,x/2 - 11,"or against me");
+  mvwprintw(tui,1,x/2 - 11,"Mader Connect Four");
   mvwprintw(tui,1,1,"Press Control C to Close This Application");
   mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
   wrefresh(tui);
@@ -180,7 +190,7 @@ int openUserMenu(){
   strcpy(selections[1], "Existing User");
   int option = 0;
   wBackground(menu,2,y,x);
-  mvwprintw(menu,1,x/2 - 11,"Mader Food Database User Menu");
+  mvwprintw(menu,1,x/2 - 11,"Mader Connect Four User Menu");
   mvwprintw(menu,y-3,x/2 - 11,"Press Arrow keys to Navigate");
   mvwprintw(menu,y-2,x/2 - 11,"Press Enter to Select");
   wmove(menu,y/2,x/2 - 11);
@@ -237,7 +247,7 @@ void openMenu(int selection){
   if(selection ==  0){
     echo();
     wrefresh(menu);
-    mvwprintw(menu,1,x/2 - 11,"Mader Food Database User Menu");
+    mvwprintw(menu,1,x/2 - 11,"Mader Connect Four User Menu");
     mvwprintw(menu,y-2,x/2 - 11,"Press Enter to Continue");
     mvwprintw(menu,y/2 + 1,x/2 - 11,"Enter Your Name:");
     wattron(menu, A_BLINK | COLOR_PAIR(2));
@@ -251,7 +261,7 @@ void openMenu(int selection){
     strcpy(who, yourName);
   }
   if(selection == 1){
-    mvwprintw(menu,1,x/2 - 11,"Mader Food Database User Menu");
+    mvwprintw(menu,1,x/2 - 11,"Mader Connect Four User Menu");
     mvwprintw(menu,y-3,x/2 - 11,"Press Arrow keys to Navigate");
     mvwprintw(menu,y-2,x/2 - 11,"Press Enter to Select");
     wmove(menu,y/2,x/2 - 11);
@@ -332,7 +342,7 @@ void userWelcome(char* user){
   wattron(menu, COLOR_PAIR(2));
   keypad(menu, true);
   wBackground(menu,2,y,x);
-  mvwprintw(menu,1,x/2 - 11,"Mader Food Database User Menu");
+  mvwprintw(menu,1,x/2 - 11,"Mader Connect Four User Menu");
   mvwprintw(menu,y-2,x/2 - 11,"Press Any Key to Continue");
   mvwprintw(menu,y/2 + 1,x/2 - 11,"Welcome %s", user);
   wrefresh(menu);
@@ -353,11 +363,11 @@ int mainMenu(){
   wclear(tui);
   wBackground(tui,1,y,x);
   char selections[4][20];
-  strcpy(selections[0], "Create User Diary");
-  strcpy(selections[1], "Retreive User Diary");
-  strcpy(selections[2], "Update User Diary");
-  strcpy(selections[3], "Delete User Diary");
-  mvwprintw(tui,1,x/2 - 11,"Mader Food Database");
+  strcpy(selections[0], "One Player");
+  strcpy(selections[1], "Two Player");
+  strcpy(selections[2], "Party Mode");
+  strcpy(selections[3], "Options");
+  mvwprintw(tui,1,x/2 - 11,"Mader Connect Four");
   mvwprintw(tui,y-2,x/2 - 11,"Press Enter to Select");
   mvwprintw(tui,y-3,x/2 - 11,"Press Arrow keys to Navigate");
   mvwprintw(tui,1,1,"Press Control C to Close This Application");
@@ -399,6 +409,59 @@ int mainMenu(){
   delwin(tui);
   return option;
 }
+
+
+
+int difficulty(WINDOW *tui, int y, int x){
+  start_color();
+  init_pair(1,COLOR_BLACK,COLOR_WHITE);
+  wBackground(tui,1,y,x);
+  wrefresh(tui);
+  wclear(tui);
+  wBackground(tui,1,y,x);
+  char selections[3][20];
+  strcpy(selections[0], "Easy");
+  strcpy(selections[1], "Medium");
+  strcpy(selections[2], "Hard");
+  mvwprintw(tui,2,x/2 - 11,"Single Player Mode");
+  wrefresh(tui);
+  keypad(tui, true);
+  int option = 0;
+  int choice;
+  while(true){
+    for(int q = 0; q < 3; q++){
+      if(q == option){
+        wattron(tui, A_BLINK);
+      }
+      mvwprintw(tui,y/2 + q + 1,x/2 - 11, selections[q]);
+      wattroff(tui, A_BLINK);
+    }
+    choice = wgetch(tui);
+    switch(choice){
+      case KEY_UP:
+        option--;
+        if(option == -1){
+          option = 0;
+        }
+        break;
+      case KEY_DOWN:
+        option++;
+        if(option == 3){
+          option = 2;
+        }
+        break;
+      default:
+        break;
+    }
+    if(choice == 10){
+      break;
+    }
+  }
+  wrefresh(tui);
+  delwin(tui);
+  return option;
+}
+
 void create(){
   char diary[100];
   strcpy(diary,who);
@@ -423,9 +486,10 @@ void update(){
 void delete(){
   remove(strcat(who,".txt"));
 }
-void action(int act){
+int mode(int act){
   int y = gy;
   int x = gx;
+  int mode;
   WINDOW *menu = newwin(y/2,x/2,y/2 - y/4,x/2 - x/4);
   getmaxyx(menu,y,x);
   start_color();
@@ -433,23 +497,408 @@ void action(int act){
   wBackground(menu,1,y,x);
   switch(act){
     case 0:
-      mvwprintw(menu,2,x/2 - 11,"Create User Diary");
+      mode = difficulty(menu, y, x);
       create();
       break;
     case 1:
-      mvwprintw(menu,2,x/2 - 11,"Retreive User Diary");
+      mvwprintw(menu,2,x/2 - 11,"Two Player");
+      mode = 3;
       retreive();
       break;
     case 2:
-      mvwprintw(menu,2,x/2 - 11,"Update User Diary");
+      mvwprintw(menu,2,x/2 - 11,"Party Mode");
+      mode = 4;
       update();
       break;
     case 3:
-      mvwprintw(menu,2,x/2 - 11,"Delete User Diary");
+      mvwprintw(menu,2,x/2 - 11,"Options");
+      mode = 5;
       delete();
       break;
   }
   wrefresh(menu);
+  return mode;
+}
+
+
+
+WINDOW* makegameboard(){
+  int y = gy;
+  int x = gx;
+  WINDOW *tui = newwin(y/2,x/2,y/2 - y/4,x/2 - x/4);
+  getmaxyx(tui,y,x);
+  start_color();
+  init_pair(1,COLOR_BLACK,COLOR_WHITE);
+  wBackground(tui,1,y,x);
+  int track[boardheight][boardheight];
+
+  // This section initializes the gameboard to blank spots, represented by 0.
+  for(int i = 0; i < boardheight; i++){
+    for(int j = 0; j < boardwidth; j++){
+      track[i][j] = 0;
+      if(track[i][j] == 0){
+        mvwprintw(tui,y/2 - y/4 + 2*i, x/2 - x/4 + 5*j, "X");
+      }
+    }
+    wrefresh(tui);
+  }
+  boardx = x;
+  boardy = y;
+  return tui;
+}
+
+void playermove(WINDOW* tui){
+  int y = boardy;
+  int x = boardx;
+  int option = 0;
+  int choice;
+  keypad(tui, true);
+  while(true){
+    for(int q = 0; q < boardwidth; q++){
+      if(q == option){
+        wattron(tui, A_BLINK);
+      }
+      mvwprintw(tui,y/2 - y/4 + 2*boardheight, x/2 - x/4 + 5*q, "*");
+      wattroff(tui, A_BLINK);
+    }
+    choice = wgetch(tui);
+    switch(choice){
+      case KEY_LEFT:
+        option--;
+        if(option == -1){
+          option = 0;
+        }
+        break;
+      case KEY_RIGHT:
+        option++;
+        if(option == boardwidth){
+          option = boardwidth - 1;
+        }
+        break;
+      default:
+        break;
+    }
+    if(choice == 10){
+      break;
+    }
+  }
+  /*for(int i = 0; i < boardheight; i++){
+    if(track[i][option] == 0){
+      track[i][option] == 1;
+      break;
+    }
+  }*/
+  mvwprintw(tui,y/2 - y/4 + 2*boardheight - 2, x/2 - x/4 + 5*option, "O");
+  wrefresh(tui);
+}
+
+void assignboardheight(){
+  int y = gy;
+  int x = gx;
+  WINDOW *menu = newwin(y/2,x/2,y/2 - y/4,x/2 - x/4);
+  getmaxyx(menu,y,x);
+  start_color();
+  init_pair(1,COLOR_BLUE,COLOR_WHITE);
+  wBackground(menu,1,y,x);
+  echo();
+  wrefresh(menu);
+  mvwprintw(menu,2,x/2 - 11,"Options Menu");
+  mvwprintw(menu,y-3,x/2 - 11,"Blank or Invalid Entries will default to Standard Height");
+  mvwprintw(menu,y-2,x/2 - 11,"Press Enter to Continue");
+  mvwprintw(menu,y/2 + 1,x/2 - 11,"Enter Custom Board Height:");
+  wattron(menu, A_BLINK | COLOR_PAIR(2));
+  int height = 6;
+  wscanw(menu,"%d", &height);
+  boardheight = height;
+  wattroff(menu, A_BLINK);
+  wclear(menu);
+  wBackground(menu,1,y,x);
+  mvwprintw(menu,2,x/2 - 11,"Options Menu");
+  mvwprintw(menu,y-2,x/2 - 11,"Press Any Key to Continue");
+  mvwprintw(menu,y/2 + 1,x/2 - 11,"Board Height has been set to %d", boardheight);
+  wrefresh(menu);
+}
+
+void assignboardwidth(){
+  int y = gy;
+  int x = gx;
+  WINDOW *menu = newwin(y/2,x/2,y/2 - y/4,x/2 - x/4);
+  getmaxyx(menu,y,x);
+  start_color();
+  init_pair(1,COLOR_BLUE,COLOR_WHITE);
+  wBackground(menu,1,y,x);
+  echo();
+  wrefresh(menu);
+  mvwprintw(menu,2,x/2 - 11,"Options Menu");
+  mvwprintw(menu,y-3,x/2 - 11,"Blank or Invalid Entries will default to Standard Width");
+  mvwprintw(menu,y-2,x/2 - 11,"Press Enter to Continue");
+  mvwprintw(menu,y/2 + 1,x/2 - 11,"Enter Custom Board Width:");
+  wattron(menu, A_BLINK | COLOR_PAIR(2));
+  int width = 7;
+  wscanw(menu,"%d", &width);
+  boardwidth = width;
+  wattroff(menu, A_BLINK);
+  wclear(menu);
+  wBackground(menu,1,y,x);
+  mvwprintw(menu,2,x/2 - 11,"Options Menu");
+  mvwprintw(menu,y-2,x/2 - 11,"Press Any Key to Continue");
+  mvwprintw(menu,y/2 + 1,x/2 - 11,"Board Width has been set to %d", boardwidth);
+  wrefresh(menu);
+}
+
+void assignwinsize(){
+  int y = gy;
+  int x = gx;
+  WINDOW *menu = newwin(y/2,x/2,y/2 - y/4,x/2 - x/4);
+  getmaxyx(menu,y,x);
+  start_color();
+  init_pair(1,COLOR_BLUE,COLOR_WHITE);
+  wBackground(menu,1,y,x);
+  echo();
+  wrefresh(menu);
+  mvwprintw(menu,2,x/2 - 11,"Options Menu");
+  mvwprintw(menu,y-3,x/2 - 11,"Blank or Invalid Entries will default to Standard Win Size");
+  mvwprintw(menu,y-2,x/2 - 11,"Press Enter to Continue");
+  mvwprintw(menu,y/2 + 1,x/2 - 11,"Enter Custom Win Size:");
+  wattron(menu, A_BLINK | COLOR_PAIR(2));
+  int winsize = 4;
+  wscanw(menu,"%d", &winsize);
+  if(winsize > boardheight && winsize > boardwidth){
+    winsize = 4;
+  }
+  boardwinsize = winsize;
+  wattroff(menu, A_BLINK);
+  wclear(menu);
+  wBackground(menu,1,y,x);
+  mvwprintw(menu,2,x/2 - 11,"Options Menu");
+  mvwprintw(menu,y-2,x/2 - 11,"Press Any Key to Continue");
+  mvwprintw(menu,y/2 + 1,x/2 - 11,"Win Size has been set to %d", boardwidth);
+  wrefresh(menu);
+}
+
+void assigncolor(int player){
+  int y = gy;
+  int x = gx;
+  WINDOW *tui = newwin(y/2,x/2,y/2 - y/4,x/2 - x/4);
+  getmaxyx(tui,y,x);
+  start_color();
+  init_pair(1,COLOR_BLUE,COLOR_WHITE);
+  wBackground(tui,1,y,x);
+  char selections[8][20];
+  strcpy(selections[0], "Black");
+  strcpy(selections[1], "Red");
+  strcpy(selections[2], "Green");
+  strcpy(selections[3], "Yellow");
+  strcpy(selections[4], "Blue");
+  strcpy(selections[5], "Magneta");
+  strcpy(selections[6], "Cyan");
+  strcpy(selections[7], "White");
+  mvwprintw(tui,2,x/2 - 11,"Options Menu");
+  wrefresh(tui);
+  keypad(tui, true);
+  int option = 0;
+  int choice;
+  while(true){
+    for(int q = 0; q < 8; q++){
+      if(q == option){
+        wattron(tui, A_BLINK);
+      }
+      mvwprintw(tui,y/2 + q + 1,x/2 - 11, selections[q]);
+      wattroff(tui, A_BLINK);
+    }
+    choice = wgetch(tui);
+    switch(choice){
+      case KEY_UP:
+        option--;
+        if(option == -1){
+          option = 0;
+        }
+        break;
+      case KEY_DOWN:
+        option++;
+        if(option == 8){
+          option = 7;
+        }
+        break;
+      default:
+        break;
+    }
+    if(choice == 10){
+      break;
+    }
+  }
+  switch(player){
+    case 1:
+      wclear(tui);
+      wBackground(tui,1,y,x);
+      mvwprintw(tui,2,x/2 - 11,"Options Menu");
+      mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
+      mvwprintw(tui,y/2 + 1,x/2 - 11,"Player 1's Color has been set to %s", selections[option]);
+      playeronecolor = option;
+      break;
+    case 2:
+      wclear(tui);
+      wBackground(tui,1,y,x);
+      mvwprintw(tui,2,x/2 - 11,"Options Menu");
+      mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
+      mvwprintw(tui,y/2 + 1,x/2 - 11,"Player 2's Color has been set to %s", selections[option]);
+      playertwocolor = option;
+      break;
+    case 3:
+      wclear(tui);
+      wBackground(tui,1,y,x);
+      mvwprintw(tui,2,x/2 - 11,"Options Menu");
+      mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
+      mvwprintw(tui,y/2 + 1,x/2 - 11,"Player 3's Color has been set to %s", selections[option]);
+      playerthreecolor = option;
+      break;
+    case 4:
+      wclear(tui);
+      wBackground(tui,1,y,x);
+      mvwprintw(tui,2,x/2 - 11,"Options Menu");
+      mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
+      mvwprintw(tui,y/2 + 1,x/2 - 11,"Player 4's Color has been set to %s", selections[option]);
+      playerfourcolor = option;
+      break;
+    case 5:
+      wclear(tui);
+      wBackground(tui,1,y,x);
+      mvwprintw(tui,2,x/2 - 11,"Options Menu");
+      mvwprintw(tui,y-2,x/2 - 11,"Press Any Key to Continue");
+      mvwprintw(tui,y/2 + 1,x/2 - 11,"Computers's Color has been set to %s", selections[option]);
+      computercolor = option;
+      break;
+}
+wrefresh(tui);
+}
+
+void optionsMenu(){
+  int y = gy;
+  int x = gx;
+  WINDOW *tui = newwin(y/2,x/2,y/2 - y/4,x/2 - x/4);
+  getmaxyx(tui,y,x);
+  start_color();
+  init_pair(1,COLOR_BLUE,COLOR_WHITE);
+  wBackground(tui,1,y,x);
+  char selections[8][20];
+  strcpy(selections[0], "Board Height");
+  strcpy(selections[1], "Board Width");
+  strcpy(selections[2], "Player 1 Color");
+  strcpy(selections[3], "Player 2 Color");
+  strcpy(selections[4], "Player 3 Color");
+  strcpy(selections[5], "Player 4 Color");
+  strcpy(selections[6], "Computer Color");
+  strcpy(selections[7], "Win Size");
+  mvwprintw(tui,2,x/2 - 11,"Options Menu");
+  wrefresh(tui);
+  keypad(tui, true);
+  int option = 0;
+  int choice;
+  while(true){
+    for(int q = 0; q < 8; q++){
+      if(q == option){
+        wattron(tui, A_BLINK);
+      }
+      mvwprintw(tui,y/2 + q + 1,x/2 - 11, selections[q]);
+      wattroff(tui, A_BLINK);
+    }
+    choice = wgetch(tui);
+    switch(choice){
+      case KEY_UP:
+        option--;
+        if(option == -1){
+          option = 0;
+        }
+        break;
+      case KEY_DOWN:
+        option++;
+        if(option == 8){
+          option = 7;
+        }
+        break;
+      default:
+        break;
+    }
+    if(choice == 10){
+      break;
+    }
+  }
+  switch(option){
+    case 0:
+      assignboardheight();
+      break;
+    case 1:
+      assignboardwidth();
+      break;
+    case 2:
+      assigncolor(1);
+      break;
+    case 3:
+      assigncolor(2);
+      break;
+    case 4:
+    assigncolor(3);
+      break;
+    case 5:
+    assigncolor(4);
+      break;
+    case 6:
+    assigncolor(5);
+      break;
+    case 7:
+    assignwinsize();
+  wrefresh(tui);
+  delwin(tui);
+}
+}
+
+void modeselector(int mode){
+  switch(mode){
+    case 0:
+      playgame(1);
+      break;
+    case 1:
+      playgame(2);
+      break;
+    case 2:
+      playgame(3);
+      break;
+    case 3:
+      playgame(4);
+      break;
+    case 4:
+      playgame(5);
+      break;
+    case 5:
+    optionsMenu();
+      break;
+  }
+}
+
+void playgame(int mode){
+  switch(mode){
+    case 0:
+      WINDOW *gameboard = makegameboard();
+
+      playermove(gameboard);
+      break;
+    case 1:
+      playgame(2);
+      break;
+    case 2:
+      playgame(3);
+      break;
+    case 3:
+      playgame(4);
+      break;
+    case 4:
+      playgame(5);
+      break;
+    case 5:
+    optionsMenu();
+      break;
+  }
+
 }
 
 int main(int argc, char const *argv[]) {
@@ -474,7 +923,13 @@ int main(int argc, char const *argv[]) {
   mvwprintw(stdscr,2,1,"User: %s", who);
   refresh();
   go = mainMenu();
-  action(go);
+  modeselector(mode(go));
+  boardwidth = 7;
+  boardheight = 6;
+  int track[boardheight][boardwidth];
+  /*WINDOW *gameboard = makegameboard();
+  playermove(gameboard);*/
+
 
 
 
@@ -485,6 +940,7 @@ int main(int argc, char const *argv[]) {
 
   endwin(); // ncurses destructor function
   return 0;
+}
 
 
 
@@ -586,4 +1042,3 @@ int main(int argc, char const *argv[]) {
 
   return 0;
   */
-}
