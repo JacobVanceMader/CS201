@@ -22,6 +22,7 @@ int backgroundcolor = 7;
 int computercolor = 2;
 int currentplayer = 1;
 int lastmove = 0;
+int seclastmove = 1;
 int gseed = 0;
 int moves = 0;
 int wins = 0;
@@ -1446,6 +1447,7 @@ int **playermove(WINDOW* tui, int** track){
       break;
   }
   moves++;
+  seclastmove = lastmove;
   lastmove = option;
   return tracker;
 }
@@ -1774,7 +1776,7 @@ int **easymove(WINDOW* tui, int** track){ // randomly makes a move
   makecolor(tui,computercolor,backgroundcolor);
   srand(gseed+lastmove*gy);
   int option = rand()%boardwidth;
-  gseed = gseed+option;
+  gseed = gseed+1*2+option;
   while(track[boardheight-1][option] != 0){
     option = option%2;
     if(option == 1){
@@ -1795,6 +1797,7 @@ int **easymove(WINDOW* tui, int** track){ // randomly makes a move
   wrefresh(tui);
   int **tracker = updateTracker(track, option, 2);
   moves++;
+  seclastmove = lastmove;
   lastmove = option;
   return tracker;
 }
@@ -1806,16 +1809,9 @@ int **hardmove(WINDOW* tui, int** track){ // computer calculates best move by de
   int option = lastmove;
   makecolor(tui,computercolor,backgroundcolor);
   option = findBest(track, 2);
-  while(track[boardheight-1][option] != 0){
-    option = option%2;
-    if(option == 1){
-      option = option + findBest(track,2);
-    }
-    if(option == 0){
-      option = (findBest(track,2) + lastmove)%boardwidth;
-    }
+  while(track[boardheight-1][option] != 0 || option == seclastmove){
+    option = rand()%boardwidth;
   }
-
   int moveheight = 1;
   for(int i = 0;i < boardheight - 1; i++){
     if(track[i][option] == 1 || track[i][option] == 2){
@@ -1827,6 +1823,7 @@ int **hardmove(WINDOW* tui, int** track){ // computer calculates best move by de
   wrefresh(tui);
   int **tracker = updateTracker(track, option, 2);
   moves++;
+  seclastmove = lastmove;
   lastmove = option;
   return tracker;
 }
@@ -1838,7 +1835,7 @@ int **mediummove(WINDOW* tui, int** track){ // randomly makes either an easy mov
   int winner = 0;
   int **tracker;
   srand(gseed);
-  int option = rand()%2;
+  int option = moves%2;
   switch(option){
     case 0:
       tracker = easymove(tui, track);
@@ -1850,6 +1847,7 @@ int **mediummove(WINDOW* tui, int** track){ // randomly makes either an easy mov
   breakcolor(tui,computercolor,backgroundcolor);
   moves++;
   gseed = option;
+  seclastmove = lastmove;
   lastmove = option;
   wrefresh(tui);
   return tracker;
@@ -1863,6 +1861,7 @@ int playgame(int mode){
   int **track;
   switch(mode){
     case 0://easy
+      currentplayer = 1;
       track = playermove(gameboard, tracker);
       winner = wincheck(track, 1);
       while(winner != 1 && winner != 2){
@@ -1881,6 +1880,7 @@ int playgame(int mode){
       }
       break;
     case 1://medium
+      currentplayer = 1;
       track = playermove(gameboard, tracker);
       winner = wincheck(track, 1);
       while(winner != 1 && winner != 2){
@@ -1899,6 +1899,7 @@ int playgame(int mode){
       }
       break;
     case 2://hard
+      currentplayer = 1;
       track = playermove(gameboard, tracker);
       winner = wincheck(track, 1);
       while(winner != 1 && winner != 2){
